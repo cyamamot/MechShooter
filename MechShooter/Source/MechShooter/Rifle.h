@@ -26,4 +26,5 @@ public:
 
 	virtual void Fire();
 	
+	virtual void Activate() {}
 };

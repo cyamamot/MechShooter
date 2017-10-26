@@ -47,10 +47,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ButtonStates)
 	bool Aiming;
 
-	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
 	TSubclassOf<class AGun> GunBlueprint;
 
-	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
 	TSubclassOf<class AGun> ShoulderWeaponBlueprint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerState)
@@ -90,6 +90,10 @@ protected:
 	void StopFiring();
 
 	void EquipWeapon();
+
+	void LeftShoulderFire();
+
+	void ActivateLeftShoulder();
 
 	void Tick(float DeltaTime);
 

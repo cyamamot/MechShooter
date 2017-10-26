@@ -20,13 +20,14 @@ AShoulderWeapon::AShoulderWeapon()
 	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	FP_MuzzleLocation->SetupAttachment(FP_Gun);
 	FP_MuzzleLocation->SetRelativeLocation(FVector(2.0f, 0.0f, 17.0f));
+
+	ReadyToFire = false;
 }
 
 // Called when the game starts or when spawned
 void AShoulderWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // Called every frame
@@ -38,7 +39,12 @@ void AShoulderWeapon::Tick(float DeltaTime)
 void AShoulderWeapon::Fire()
 {
 	// try and fire a projectile
-	if (ProjectileClass != NULL)
+	if (ReadyToFire == false)
+	{
+		MoveUp();
+		return;
+	}
+	if ((ProjectileClass != NULL) && (ReadyToFire == true))
 	{
 		UWorld* const World = GetWorld();
 		if (World != NULL)
@@ -56,6 +62,34 @@ void AShoulderWeapon::Fire()
 		}
 	}
 
+}
+
+void AShoulderWeapon::MoveUp()
+{
+	if (ReadyToFire == false)
+	{
+		ReadyToFire = true;
+	}
+}
+
+void AShoulderWeapon::MoveDown()
+{
+	if (ReadyToFire == true)
+	{
+		ReadyToFire = false;
+	}
+}
+
+void AShoulderWeapon::Activate()
+{
+	if (ReadyToFire == true)
+	{
+		MoveDown();
+	}
+	else if (ReadyToFire == false)
+	{
+		MoveUp();
+	}
 }
 
 

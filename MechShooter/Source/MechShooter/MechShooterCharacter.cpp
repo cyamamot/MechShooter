@@ -99,6 +99,10 @@ void AMechShooterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AMechShooterCharacter::StopFiring);
 
 	PlayerInputComponent->BindAction("Holster", IE_Pressed, this, &AMechShooterCharacter::EquipWeapon);
+
+	PlayerInputComponent->BindAction("LeftShoulderFire", IE_Pressed, this, &AMechShooterCharacter::LeftShoulderFire);
+
+	PlayerInputComponent->BindAction("ActivateLeftShoulder", IE_Pressed, this, &AMechShooterCharacter::ActivateLeftShoulder);
 }
 
 void AMechShooterCharacter::BeginPlay()
@@ -289,4 +293,14 @@ void AMechShooterCharacter::HolsterUnholsterWeapon()
 	{
 		Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
 	}
+}
+
+void AMechShooterCharacter::LeftShoulderFire()
+{
+	ShoulderWeapon->Fire();
+}
+
+void AMechShooterCharacter::ActivateLeftShoulder()
+{
+	ShoulderWeapon->Activate();
 }

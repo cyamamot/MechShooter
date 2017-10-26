@@ -4,16 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Gun.h"
+#include "Animation/AnimInstance.h"
 #include "ShoulderWeapon.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class MECHSHOOTER_API AShoulderWeapon : public AGun
 {
 	GENERATED_BODY()
 	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponState)
+	bool ReadyToFire;
+
 public:
 	AShoulderWeapon();
 
@@ -26,5 +29,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Fire();
+
+	void MoveUp();
+
+	void MoveDown();
 	
+	void Activate();
 };
