@@ -54,6 +54,9 @@ AMechShooterCharacter::AMechShooterCharacter()
 	LandingNow = false;
 	Sprinting = false;
 	Aiming = false;
+	Firing = false;
+	if (Gun == NULL) IsCurrentlyArmed = false;
+	else IsCurrentlyArmed = true;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -94,6 +97,8 @@ void AMechShooterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMechShooterCharacter::StartFiring);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AMechShooterCharacter::StopFiring);
+
+	PlayerInputComponent->BindAction("Holster", IE_Pressed, this, &AMechShooterCharacter::EquipWeapon);
 }
 
 void AMechShooterCharacter::BeginPlay()
@@ -103,8 +108,11 @@ void AMechShooterCharacter::BeginPlay()
 	if (GunBlueprint == NULL) return;
 	Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
 	Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
-	IsArmed = true;
-	//Gun->AnimInstance = Mesh->GetAnimInstance();
+	IsCurrentlyArmed = true;
+
+	if (ShoulderWeaponBlueprint == NULL) return;
+	ShoulderWeapon = GetWorld()->SpawnActor<AGun>(ShoulderWeaponBlueprint);
+	ShoulderWeapon->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("ShoulderWeaponSocket"));
 }
 
 
@@ -173,6 +181,7 @@ void AMechShooterCharacter::Jump()
 
 void AMechShooterCharacter::StopJumping()
 {
+	JumpButtonDown = false;
 	LandingNow = false;
 	ACharacter::StopJumping();
 }
@@ -220,27 +229,28 @@ void AMechShooterCharacter::Tick(float DeltaTime)
 		}
 		else Sprinting = false;
 	}
-	/*if (Firing == true)
-	{
-		Gun->Fire();
-	}*/
 }
 
 void AMechShooterCharacter::StartAiming()
 {
-	Aiming = true;
+	if (Gun != NULL)
+	{
+		Aiming = true;
+	}
 }
 
 void AMechShooterCharacter::StopAiming()
 {
-	Aiming = false;
+	if (Gun != NULL)
+	{
+		Aiming = false;
+	}
 }
 
 void AMechShooterCharacter::StartFiring()
 {
-	if ((Gun != NULL) && (IsArmed))
+	if (Gun != NULL)
 	{
-		//Gun->Fire();
 		Firing = true;
 	}
 }
@@ -250,7 +260,33 @@ void AMechShooterCharacter::StopFiring()
 	Firing = false;
 }
 
+void AMechShooterCharacter::EquipWeapon()
+{
+	if ((IsCurrentlyArmed == true) && (Gun != NULL))
+	{
+		IsCurrentlyArmed = false;
+	}
+	else if ((IsCurrentlyArmed == false) && (Gun != NULL))
+	{
+		IsCurrentlyArmed = true;
+	}
+}
+
+//Called in AnimBP by the firing animation sequence so bullet only fires during certain part of animation
 void AMechShooterCharacter::FireGunProjectile()
 {
 	Gun->Fire();
+}
+
+//Called in AnimBP by equipping animation sequence so gun is placed in correct socket at correct frame of animation
+void AMechShooterCharacter::HolsterUnholsterWeapon()
+{
+	if ((IsCurrentlyArmed == false) && (Gun != NULL))
+	{
+		Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponHolsterSocket"));
+	}
+	else if ((IsCurrentlyArmed == true) && (Gun != NULL))
+	{
+		Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
+	}
 }

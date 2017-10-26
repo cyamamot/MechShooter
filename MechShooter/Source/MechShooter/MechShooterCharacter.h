@@ -21,6 +21,7 @@ class AMechShooterCharacter : public ACharacter
 	//class UCameraComponent* FollowCamera;
 private:
 	AGun* Gun;
+	AGun* ShoulderWeapon;
 	USkeletalMeshComponent* Mesh;
 
 public:
@@ -49,11 +50,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Setup)
 	TSubclassOf<class AGun> GunBlueprint;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerState)
-	bool IsArmed;
+	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	TSubclassOf<class AGun> ShoulderWeaponBlueprint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerState)
 	bool Firing;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerState)
+	bool IsCurrentlyArmed;
 
 
 protected:
@@ -84,6 +88,8 @@ protected:
 	void StartFiring();
 
 	void StopFiring();
+
+	void EquipWeapon();
 
 	void Tick(float DeltaTime);
 
@@ -120,5 +126,8 @@ public:
 	//FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	UFUNCTION(BlueprintCallable, Category = GunBehavior)
 	void FireGunProjectile();
+
+	UFUNCTION(BlueprintCallable, Category = GunBehavior)
+	void HolsterUnholsterWeapon();
 };
 
