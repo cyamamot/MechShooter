@@ -8,6 +8,8 @@
 #include "Projectile.h"
 #include "Gun.generated.h"
 
+class AMechShooterCharacter;
+
 UCLASS()
 class MECHSHOOTER_API AGun : public AActor
 {
@@ -20,6 +22,8 @@ public:
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<class AProjectile> ProjectileClass;
+
+	AMechShooterCharacter* User;
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,4 +43,6 @@ public:
 	virtual void Fire() {}
 
 	virtual void Activate() {}
+
+
 };

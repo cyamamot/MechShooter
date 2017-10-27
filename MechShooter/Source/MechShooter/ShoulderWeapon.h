@@ -14,6 +14,12 @@ class MECHSHOOTER_API AShoulderWeapon : public AGun
 	GENERATED_BODY()
 	
 public:
+	//moving the mesh ot the up position
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponState)
+	bool MovingToPosition;
+
+	//mesh is completely in the up position and can now fire
+	//Set True or False by the ShoulderWeapon_AnimBP
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponState)
 	bool ReadyToFire;
 

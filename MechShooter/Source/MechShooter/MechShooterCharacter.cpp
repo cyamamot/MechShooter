@@ -33,15 +33,24 @@ AMechShooterCharacter::AMechShooterCharacter()
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
-	//CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	//CameraBoom->SetupAttachment(RootComponent);
-	//CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
-	//CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	/*CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = 250.0f; // The camera follows at this distance behind the character	
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->bInheritPitch = false;
+	CameraBoom->bInheritYaw = true;
+	CameraBoom->bInheritRoll = false;
 
 	// Create a follow camera
-	//FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	//FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	//FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	TPCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TPCamera"));
+	TPCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	TPCamera->bUsePawnControlRotation = true; // Camera does not rotate relative to arm
+	TPCamera->SetRelativeLocation(FVector(0.0f, 100.0f, 67.0f));
+
+	FPCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FPCamera"));
+	FPCamera->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("FPCameraSocket"));
+	FPCamera->bUsePawnControlRotation = true;
+    FPCamera->SetRelativeLocation(FVector(7.5f, 9.0f, 5.8f));*/
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -112,11 +121,15 @@ void AMechShooterCharacter::BeginPlay()
 	if (GunBlueprint == NULL) return;
 	Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
 	Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
+	Gun->User = this;
 	IsCurrentlyArmed = true;
 
 	if (ShoulderWeaponBlueprint == NULL) return;
 	ShoulderWeapon = GetWorld()->SpawnActor<AGun>(ShoulderWeaponBlueprint);
 	ShoulderWeapon->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("ShoulderWeaponSocket"));
+	ShoulderWeapon->User = this;
+
+
 }
 
 

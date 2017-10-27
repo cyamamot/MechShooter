@@ -12,15 +12,15 @@ AShoulderWeapon::AShoulderWeapon()
 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
 	FP_Gun->bCastDynamicShadow = false;
 	FP_Gun->CastShadow = false;
-	// FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
-	//FP_Gun->SetupAttachment(RootComponent);
 
 	RootComponent = FP_Gun;
 
 	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	FP_MuzzleLocation->SetupAttachment(FP_Gun);
-	FP_MuzzleLocation->SetRelativeLocation(FVector(2.0f, 0.0f, 17.0f));
+	//FP_MuzzleLocation->SetRelativeLocation(FVector(2.15f, -17.0f, 14.0f));
+	FP_MuzzleLocation->AttachToComponent(FP_Gun, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("MuzzleSocket"));
 
+	MovingToPosition = false;
 	ReadyToFire = false;
 }
 
@@ -39,12 +39,12 @@ void AShoulderWeapon::Tick(float DeltaTime)
 void AShoulderWeapon::Fire()
 {
 	// try and fire a projectile
-	if (ReadyToFire == false)
+	if (MovingToPosition == false)
 	{
 		MoveUp();
 		return;
 	}
-	if ((ProjectileClass != NULL) && (ReadyToFire == true))
+	if ((ProjectileClass != NULL) && (MovingToPosition == true) && (ReadyToFire == true))
 	{
 		UWorld* const World = GetWorld();
 		if (World != NULL)
@@ -66,27 +66,27 @@ void AShoulderWeapon::Fire()
 
 void AShoulderWeapon::MoveUp()
 {
-	if (ReadyToFire == false)
+	if (MovingToPosition == false)
 	{
-		ReadyToFire = true;
+		MovingToPosition = true;
 	}
 }
 
 void AShoulderWeapon::MoveDown()
 {
-	if (ReadyToFire == true)
+	if (MovingToPosition == true)
 	{
-		ReadyToFire = false;
+		MovingToPosition = false;
 	}
 }
 
 void AShoulderWeapon::Activate()
 {
-	if (ReadyToFire == true)
+	if (MovingToPosition == true)
 	{
 		MoveDown();
 	}
-	else if (ReadyToFire == false)
+	else if (MovingToPosition == false)
 	{
 		MoveUp();
 	}
