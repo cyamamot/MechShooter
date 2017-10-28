@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Projectile.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Missile.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class MECHSHOOTER_API AMissile : public AProjectile
 {
@@ -18,7 +17,7 @@ public:
 	AMissile();
 
 protected:
-	AActor* FX;
+	//UParticleSystemComponent* FX;
 
 	void BeginPlay() override;
 

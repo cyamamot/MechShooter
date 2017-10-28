@@ -288,7 +288,6 @@ void AMechShooterCharacter::LeftShoulderFire()
 		LeftShoulder->Activate();
 		ReplaceBinding(FName("LeftTrigger"));
 		InputComponent->BindAction("LeftTrigger", IE_Pressed, Left, &AShoulderWeapon::Fire);
-		UE_LOG(LogTemp, Warning, TEXT("%d"), InputComponent->GetNumActionBindings());
 	}
 	else if ((LeftShoulder != NULL) && (Left != NULL) && (Left->ReadyToFire == true))
 	{
@@ -296,7 +295,6 @@ void AMechShooterCharacter::LeftShoulderFire()
 		ReplaceBinding(FName("LeftTrigger"));
 		InputComponent->BindAction("LeftTrigger", IE_Pressed, this, &AMechShooterCharacter::StartAiming);
 		InputComponent->BindAction("LeftTrigger", IE_Released, this, &AMechShooterCharacter::StopAiming);
-		UE_LOG(LogTemp, Warning, TEXT("%d"), InputComponent->GetNumActionBindings());
 	}
 }
 

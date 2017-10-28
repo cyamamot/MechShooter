@@ -13,17 +13,17 @@ class MECHSHOOTER_API AProjectile : public AActor
 
 public:	
 	/** Returns CollisionComp subobject **/
-	FORCEINLINE class UCapsuleComponent* GetCollisionComp() const { return CollisionComp; }
+	FORCEINLINE class UBoxComponent* GetCollisionComp() const { return CollisionComp; }
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
-	TSubclassOf<class AActor> HitEffect;
+	class UParticleSystem* HitEffect;
 
 	/** Sphere collision component */
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
-	class UCapsuleComponent* CollisionComp;
+	class UBoxComponent* CollisionComp;
 
 	/** Projectile movement component */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))

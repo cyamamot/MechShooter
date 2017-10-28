@@ -2,18 +2,19 @@
 
 #include "Bullet.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 
 ABullet::ABullet()
 {
 	// Use a sphere as a simple collision representation
-	CollisionComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
-	CollisionComp->InitCapsuleSize(3.0f, 0.0f);
+	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CapsuleComp"));
+	CollisionComp->InitBoxExtent(FVector(3.0f, 1.5f, 1.5f));
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
 	CollisionComp->OnComponentHit.AddDynamic(this, &ABullet::OnHit);		// set up a notification for when this component hits something blocking
 																				// Players can't walk on it
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
+	CollisionComp->SetNotifyRigidBodyCollision(true);
 
 	// Set as root component
 	RootComponent = CollisionComp;
@@ -39,6 +40,7 @@ void ABullet::BeginPlay()
 
 void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	UE_LOG(LogTemp, Warning, TEXT("hit"));
 	// Only add impulse and destroy projectile if we hit a physics
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
 	{
