@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Gun.h"
+#include "Shoulder.h"
+#include "ShoulderWeapon.h"
 #include "MechShooterCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -12,13 +14,13 @@ class AMechShooterCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-	/** Camera boom positioning the camera behind the character */
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	//class USpringArmComponent* CameraBoom;
-
-private:
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment)
 	AGun* Gun;
-	AGun* ShoulderWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment)
+	AShoulder* LeftShoulder;
+
 	USkeletalMeshComponent* Mesh;
 
 public:
@@ -48,7 +50,7 @@ public:
 	TSubclassOf<class AGun> GunBlueprint;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
-	TSubclassOf<class AGun> ShoulderWeaponBlueprint;
+	TSubclassOf<class AShoulder> LeftShoulderBlueprint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerState)
 	bool Firing;
@@ -56,9 +58,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerState)
 	bool IsCurrentlyArmed;
 
+	UFUNCTION(BlueprintCallable, Category = GunBehavior)
+	void FireGunProjectile();
+
+	UFUNCTION(BlueprintCallable, Category = GunBehavior)
+	void HolsterUnholsterWeapon();
+
 
 protected:
-
 	/** Resets HMD orientation in VR. */
 	void OnResetVR();
 
@@ -90,9 +97,8 @@ protected:
 
 	void LeftShoulderFire();
 
-	void ActivateLeftShoulder();
-
 	void Tick(float DeltaTime);
+
 
 	/** 
 	 * Called via input to turn at a given rate. 
@@ -114,21 +120,13 @@ protected:
 
 
 protected:
-	// APawn interface
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	// End of APawn interface
 
 	virtual void BeginPlay();
 
-public:
-	/** Returns CameraBoom subobject **/
-	//FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	//FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	UFUNCTION(BlueprintCallable, Category = GunBehavior)
-	void FireGunProjectile();
+	void ReplaceBinding(FName ActionName);
 
-	UFUNCTION(BlueprintCallable, Category = GunBehavior)
-	void HolsterUnholsterWeapon();
+
 };
 

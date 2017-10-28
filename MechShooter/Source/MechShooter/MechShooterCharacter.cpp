@@ -9,9 +9,6 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 
-//////////////////////////////////////////////////////////////////////////
-// AMechShooterCharacter
-
 AMechShooterCharacter::AMechShooterCharacter()
 {
 	// Set size for collision capsule
@@ -32,29 +29,6 @@ AMechShooterCharacter::AMechShooterCharacter()
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
-	// Create a camera boom (pulls in towards the player if there is a collision)
-	/*CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 250.0f; // The camera follows at this distance behind the character	
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-	CameraBoom->bInheritPitch = false;
-	CameraBoom->bInheritYaw = true;
-	CameraBoom->bInheritRoll = false;
-
-	// Create a follow camera
-	TPCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TPCamera"));
-	TPCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	TPCamera->bUsePawnControlRotation = true; // Camera does not rotate relative to arm
-	TPCamera->SetRelativeLocation(FVector(0.0f, 100.0f, 67.0f));
-
-	FPCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FPCamera"));
-	FPCamera->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("FPCameraSocket"));
-	FPCamera->bUsePawnControlRotation = true;
-    FPCamera->SetRelativeLocation(FVector(7.5f, 9.0f, 5.8f));*/
-
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
 	Mesh = GetMesh();
 
 	PrimaryActorTick.bCanEverTick = true;
@@ -68,17 +42,14 @@ AMechShooterCharacter::AMechShooterCharacter()
 	else IsCurrentlyArmed = true;
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
 
 void AMechShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMechShooterCharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMechShooterCharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("BottomButton", IE_Pressed, this, &AMechShooterCharacter::Jump);
+	PlayerInputComponent->BindAction("BottomButton", IE_Released, this, &AMechShooterCharacter::StopJumping);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMechShooterCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMechShooterCharacter::MoveRight);
@@ -98,20 +69,18 @@ void AMechShooterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	// VR headset functionality
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AMechShooterCharacter::OnResetVR);
 
-	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMechShooterCharacter::StartSprinting);
-	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMechShooterCharacter::StopSprinting);
+	PlayerInputComponent->BindAction("LeftStickButton", IE_Pressed, this, &AMechShooterCharacter::StartSprinting);
+	PlayerInputComponent->BindAction("LeftStickButton", IE_Released, this, &AMechShooterCharacter::StopSprinting);
 
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &AMechShooterCharacter::StartAiming);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &AMechShooterCharacter::StopAiming);
+	PlayerInputComponent->BindAction("LeftTrigger", IE_Pressed, this, &AMechShooterCharacter::StartAiming);
+	PlayerInputComponent->BindAction("LeftTrigger", IE_Released, this, &AMechShooterCharacter::StopAiming);
 
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AMechShooterCharacter::StartFiring);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AMechShooterCharacter::StopFiring);
+	PlayerInputComponent->BindAction("RightTrigger", IE_Pressed, this, &AMechShooterCharacter::StartFiring);
+	PlayerInputComponent->BindAction("RightTrigger", IE_Released, this, &AMechShooterCharacter::StopFiring);
 
-	PlayerInputComponent->BindAction("Holster", IE_Pressed, this, &AMechShooterCharacter::EquipWeapon);
+	PlayerInputComponent->BindAction("LeftButton", IE_Pressed, this, &AMechShooterCharacter::EquipWeapon);
 
-	PlayerInputComponent->BindAction("LeftShoulderFire", IE_Pressed, this, &AMechShooterCharacter::LeftShoulderFire);
-
-	PlayerInputComponent->BindAction("ActivateLeftShoulder", IE_Pressed, this, &AMechShooterCharacter::ActivateLeftShoulder);
+	PlayerInputComponent->BindAction("LeftBumper", IE_Pressed, this, &AMechShooterCharacter::LeftShoulderFire);
 }
 
 void AMechShooterCharacter::BeginPlay()
@@ -124,12 +93,10 @@ void AMechShooterCharacter::BeginPlay()
 	Gun->User = this;
 	IsCurrentlyArmed = true;
 
-	if (ShoulderWeaponBlueprint == NULL) return;
-	ShoulderWeapon = GetWorld()->SpawnActor<AGun>(ShoulderWeaponBlueprint);
-	ShoulderWeapon->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("ShoulderWeaponSocket"));
-	ShoulderWeapon->User = this;
-
-
+	if (LeftShoulderBlueprint == NULL) return;
+	LeftShoulder = GetWorld()->SpawnActor<AShoulder>(LeftShoulderBlueprint);
+	LeftShoulder->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("ShoulderWeaponSocket"));
+	LeftShoulder->User = this;
 }
 
 
@@ -140,12 +107,12 @@ void AMechShooterCharacter::OnResetVR()
 
 void AMechShooterCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
-		Jump();
+	Jump();
 }
 
 void AMechShooterCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
-		StopJumping();
+	StopJumping();
 }
 
 void AMechShooterCharacter::TurnAtRate(float Rate)
@@ -164,11 +131,8 @@ void AMechShooterCharacter::MoveForward(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
-		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
 	}
@@ -178,13 +142,9 @@ void AMechShooterCharacter::MoveRight(float Value)
 {
 	if ( (Controller != NULL) && (Value != 0.0f) )
 	{
-		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
-		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
 }
@@ -246,6 +206,18 @@ void AMechShooterCharacter::Tick(float DeltaTime)
 		}
 		else Sprinting = false;
 	}
+}
+
+void AMechShooterCharacter::ReplaceBinding(FName ActionName)
+{
+	for (int32 i = 0; i < InputComponent->GetNumActionBindings() - 1; i++)
+	{
+		if (InputComponent->GetActionBinding(i).ActionName.IsEqual(ActionName))
+		{
+			InputComponent->RemoveActionBinding(i);
+		}
+	}
+
 }
 
 void AMechShooterCharacter::StartAiming()
@@ -310,10 +282,21 @@ void AMechShooterCharacter::HolsterUnholsterWeapon()
 
 void AMechShooterCharacter::LeftShoulderFire()
 {
-	ShoulderWeapon->Fire();
+	AShoulderWeapon* Left = dynamic_cast<AShoulderWeapon*>(LeftShoulder);
+	if ((LeftShoulder != NULL) && (Left != NULL) && (Left->ReadyToFire == false))
+	{
+		LeftShoulder->Activate();
+		ReplaceBinding(FName("LeftTrigger"));
+		InputComponent->BindAction("LeftTrigger", IE_Pressed, Left, &AShoulderWeapon::Fire);
+		UE_LOG(LogTemp, Warning, TEXT("%d"), InputComponent->GetNumActionBindings());
+	}
+	else if ((LeftShoulder != NULL) && (Left != NULL) && (Left->ReadyToFire == true))
+	{
+		LeftShoulder->Activate();
+		ReplaceBinding(FName("LeftTrigger"));
+		InputComponent->BindAction("LeftTrigger", IE_Pressed, this, &AMechShooterCharacter::StartAiming);
+		InputComponent->BindAction("LeftTrigger", IE_Released, this, &AMechShooterCharacter::StopAiming);
+		UE_LOG(LogTemp, Warning, TEXT("%d"), InputComponent->GetNumActionBindings());
+	}
 }
 
-void AMechShooterCharacter::ActivateLeftShoulder()
-{
-	ShoulderWeapon->Activate();
-}

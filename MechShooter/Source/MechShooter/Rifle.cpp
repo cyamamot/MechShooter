@@ -12,9 +12,7 @@ ARifle::ARifle()
 	// Create a gun mesh component
 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
 	FP_Gun->bCastDynamicShadow = false;
-	FP_Gun->CastShadow = false;
-	// FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
-	//FP_Gun->SetupAttachment(RootComponent);
+	FP_Gun->CastShadow = true;
 
 	RootComponent = FP_Gun;
 
@@ -29,7 +27,6 @@ void ARifle::BeginPlay()
 	Super::BeginPlay();
 	
 }
-
 
 // Called every frame
 void ARifle::Tick(float DeltaTime)

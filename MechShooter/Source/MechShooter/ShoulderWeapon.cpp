@@ -8,19 +8,18 @@ AShoulderWeapon::AShoulderWeapon()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	//PrimaryActorTick.bCanEverTick = true;
 
-	// Create a gun mesh component
-	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	FP_Gun->bCastDynamicShadow = false;
-	FP_Gun->CastShadow = false;
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ShoulderMesh"));
+	Mesh->bCastDynamicShadow = false;
+	Mesh->CastShadow = true;
 
-	RootComponent = FP_Gun;
+	RootComponent = Mesh;
 
-	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
-	FP_MuzzleLocation->SetupAttachment(FP_Gun);
+	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
+	Muzzle->SetupAttachment(Mesh);
 	//FP_MuzzleLocation->SetRelativeLocation(FVector(2.15f, -17.0f, 14.0f));
-	FP_MuzzleLocation->AttachToComponent(FP_Gun, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("MuzzleSocket"));
+	Muzzle->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("MuzzleSocket"));
 
-	MovingToPosition = false;
+	GettingReady = false;
 	ReadyToFire = false;
 }
 
@@ -38,20 +37,14 @@ void AShoulderWeapon::Tick(float DeltaTime)
 
 void AShoulderWeapon::Fire()
 {
-	// try and fire a projectile
-	if (MovingToPosition == false)
-	{
-		MoveUp();
-		return;
-	}
-	if ((ProjectileClass != NULL) && (MovingToPosition == true) && (ReadyToFire == true))
+	if ((ProjectileClass != NULL) && (GettingReady == true) && (ReadyToFire == true))
 	{
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-			const FRotator SpawnRotation = FP_MuzzleLocation->GetComponentRotation();
+			const FRotator SpawnRotation = Muzzle->GetComponentRotation();
 			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-			const FVector SpawnLocation = FP_MuzzleLocation->GetComponentLocation();
+			const FVector SpawnLocation = Muzzle->GetComponentLocation();
 
 			//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
@@ -61,34 +54,35 @@ void AShoulderWeapon::Fire()
 			World->SpawnActor<AProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 		}
 	}
-
 }
 
 void AShoulderWeapon::MoveUp()
 {
-	if (MovingToPosition == false)
+	if (GettingReady == false)
 	{
-		MovingToPosition = true;
+		GettingReady = true;
 	}
 }
 
 void AShoulderWeapon::MoveDown()
 {
-	if (MovingToPosition == true)
+	if (GettingReady == true)
 	{
-		MovingToPosition = false;
+		GettingReady = false;
 	}
 }
 
 void AShoulderWeapon::Activate()
 {
-	if (MovingToPosition == true)
-	{
-		MoveDown();
-	}
-	else if (MovingToPosition == false)
+	if (GettingReady == false)
 	{
 		MoveUp();
+		return;
+	}
+	else if (GettingReady == true)
+	{
+		MoveDown();
+		return;
 	}
 }
 
