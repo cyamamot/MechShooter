@@ -19,9 +19,19 @@ public:
 	AGun* Gun;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment)
+	AGun* FPGun;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment)
 	AShoulder* LeftShoulder;
 
 	USkeletalMeshComponent* Mesh;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	USkeletalMeshComponent* FPMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* FPCamera;
+
 
 public:
 	AMechShooterCharacter();
@@ -48,6 +58,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
 	TSubclassOf<class AGun> GunBlueprint;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
+	TSubclassOf<class AGun> FPGunBlueprint;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
 	TSubclassOf<class AShoulder> LeftShoulderBlueprint;

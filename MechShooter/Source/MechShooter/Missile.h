@@ -17,7 +17,11 @@ public:
 	AMissile();
 
 protected:
-	//UParticleSystemComponent* FX;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
+	class UParticleSystem* TrailingEffect;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Setup)
+	class USceneComponent* TrailingLocation;
 
 	void BeginPlay() override;
 

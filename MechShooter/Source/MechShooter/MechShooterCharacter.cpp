@@ -29,6 +29,12 @@ AMechShooterCharacter::AMechShooterCharacter()
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
+	FPCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FPCamera"));
+	FPCamera->SetupAttachment(RootComponent);
+
+	FPMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FPSkeletalMesh"));
+	FPMesh->SetupAttachment(FPCamera);
+
 	Mesh = GetMesh();
 
 	PrimaryActorTick.bCanEverTick = true;
@@ -87,16 +93,34 @@ void AMechShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GunBlueprint == NULL) return;
-	Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
-	Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
-	Gun->User = this;
-	IsCurrentlyArmed = true;
+	if (GunBlueprint != NULL)
+	{
+		Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
+		Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
+		Gun->User = this;
+		Gun->SetOwner(this);
+		Gun->FP_Gun->SetOwnerNoSee(true);
+		IsCurrentlyArmed = true;
+	}
 
-	if (LeftShoulderBlueprint == NULL) return;
-	LeftShoulder = GetWorld()->SpawnActor<AShoulder>(LeftShoulderBlueprint);
-	LeftShoulder->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("ShoulderWeaponSocket"));
-	LeftShoulder->User = this;
+	if (FPGunBlueprint != NULL)
+	{
+		FPGun = GetWorld()->SpawnActor<AGun>(FPGunBlueprint);
+		FPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
+		FPGun->User = this;
+		FPGun->SetOwner(this);
+	}
+
+	if (LeftShoulderBlueprint != NULL)
+	{
+		LeftShoulder = GetWorld()->SpawnActor<AShoulder>(LeftShoulderBlueprint);
+		LeftShoulder->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("ShoulderWeaponSocket"));
+		LeftShoulder->User = this;
+		LeftShoulder->SetOwner(this);
+		LeftShoulder->Mesh->SetOwnerNoSee(true);
+	}
+	Mesh->SetOwnerNoSee(true);
+
 }
 
 
