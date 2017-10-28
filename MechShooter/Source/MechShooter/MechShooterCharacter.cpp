@@ -297,10 +297,12 @@ void AMechShooterCharacter::HolsterUnholsterWeapon()
 	if ((IsCurrentlyArmed == false) && (Gun != NULL))
 	{
 		Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponHolsterSocket"));
+		FPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponHolsterSocket"));
 	}
 	else if ((IsCurrentlyArmed == true) && (Gun != NULL))
 	{
 		Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
+		FPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
 	}
 }
 
@@ -310,12 +312,22 @@ void AMechShooterCharacter::LeftShoulderFire()
 	if ((LeftShoulder != NULL) && (Left != NULL) && (Left->ReadyToFire == false))
 	{
 		LeftShoulder->Activate();
+		Mesh->SetOwnerNoSee(false);
+		FPMesh->SetOwnerNoSee(true);
+		FPGun->FP_Gun->SetOwnerNoSee(true);
+		LeftShoulder->Mesh->SetOwnerNoSee(false);
+		Gun->FP_Gun->SetOwnerNoSee(false);
 		ReplaceBinding(FName("LeftTrigger"));
 		InputComponent->BindAction("LeftTrigger", IE_Pressed, Left, &AShoulderWeapon::Fire);
 	}
 	else if ((LeftShoulder != NULL) && (Left != NULL) && (Left->ReadyToFire == true))
 	{
 		LeftShoulder->Activate();
+		Mesh->SetOwnerNoSee(true);
+		FPMesh->SetOwnerNoSee(false);
+		FPGun->FP_Gun->SetOwnerNoSee(false);
+		LeftShoulder->Mesh->SetOwnerNoSee(true);
+		Gun->FP_Gun->SetOwnerNoSee(true);
 		ReplaceBinding(FName("LeftTrigger"));
 		InputComponent->BindAction("LeftTrigger", IE_Pressed, this, &AMechShooterCharacter::StartAiming);
 		InputComponent->BindAction("LeftTrigger", IE_Released, this, &AMechShooterCharacter::StopAiming);
