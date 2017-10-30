@@ -17,8 +17,6 @@ public:
 	// Sets default values for this actor's properties
 	AShoulder();
 
-	AMechShooterCharacter* User;
-
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	class USkeletalMeshComponent* Mesh;
 
@@ -32,5 +30,5 @@ public:
 
 	virtual void Fire() {}
 
-	virtual void Activate() {}
+	virtual void Activate(UInputComponent* Input) {}
 };

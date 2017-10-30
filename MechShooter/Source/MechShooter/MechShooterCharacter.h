@@ -24,6 +24,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment)
 	AShoulder* LeftShoulder;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment)
+	AShoulder* RightShoulder;
+
 	USkeletalMeshComponent* Mesh;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
@@ -65,20 +68,25 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
 	TSubclassOf<class AShoulder> LeftShoulderBlueprint;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
+	TSubclassOf<class AShoulder> RightShoulderBlueprint;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerState)
 	bool Firing;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerState)
 	bool IsCurrentlyArmed;
 
-	UFUNCTION(BlueprintCallable, Category = GunBehavior)
-	void FireGunProjectile();
+	//UFUNCTION(BlueprintCallable, Category = GunBehavior)
+	//void FireGunProjectile();
 
 	UFUNCTION(BlueprintCallable, Category = GunBehavior)
 	void HolsterUnholsterWeapon();
 
+	void ToggleVisibility();
 
-protected:
+	void ReplaceBinding(FName ActionName);
+
 	/** Resets HMD orientation in VR. */
 	void OnResetVR();
 
@@ -137,9 +145,6 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void BeginPlay();
-
-	void ReplaceBinding(FName ActionName);
-
 
 };
 

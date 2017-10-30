@@ -25,4 +25,18 @@ void AGun::Tick(float DeltaTime)
 
 }
 
+FHitResult AGun::WeaponTrace(const FVector& StartTrace, const FVector& EndTrace)
+{
+	// Perform trace to retrieve hit info
+	FCollisionQueryParams TraceParams(FName(TEXT("WeaponTrace")), true, Instigator);
+	TraceParams.bTraceAsyncScene = true;
+	TraceParams.bReturnPhysicalMaterial = true;
+
+	FHitResult Hit(ForceInit);
+	//GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_GameTraceChannel1, TraceParams);
+	GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_Visibility, TraceParams);
+
+	return Hit;
+}
+
 

@@ -30,10 +30,6 @@ AMissile::AMissile()
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
 
-	TrailingLocation = CreateDefaultSubobject<USceneComponent>(TEXT("TrailingEffectLocation"));
-	TrailingLocation->SetupAttachment(CollisionComp);
-	TrailingLocation->AttachToComponent(CollisionComp, FAttachmentTransformRules(EAttachmentRule::KeepRelative, true));
-
 	// Die after 3 seconds by default
 	InitialLifeSpan = 5.0f;
 }
@@ -41,10 +37,6 @@ AMissile::AMissile()
 void AMissile::BeginPlay()
 {
 	Super::BeginPlay();
-	if (TrailingEffect != NULL)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrailingEffect, FTransform(FRotator(0.0f, 0.0f, 0.0f), TrailingLocation->GetComponentLocation(), FVector(1.0f, 1.0f, 1.0f)), true);
-	}
 }
 
 
@@ -53,7 +45,7 @@ void AMissile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiv
 	if (HitEffect != NULL)
 	{
 		//FX = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("FX"));
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, FTransform(FRotator(0.0f, 0.0f, 0.0f), Hit.Location, FVector(3.0f, 3.0f, 3.0f)), true);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, FTransform(FRotator(0.0f, 0.0f, 0.0f), Hit.Location, FVector(6.0f, 6.0f, 6.0f)), true);
 	}
 	// Only add impulse and destroy projectile if we hit a physics
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())

@@ -23,8 +23,8 @@ ABullet::ABullet()
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 3000.f;
-	ProjectileMovement->MaxSpeed = 3000.f;
+	ProjectileMovement->InitialSpeed = 5000.f;
+	ProjectileMovement->MaxSpeed = 5000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
@@ -38,18 +38,22 @@ void ABullet::BeginPlay()
 	Super::BeginPlay();
 }
 
-
 void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (HitEffect != NULL)
 	{
-		//FX = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("FX"));
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, FTransform(FRotator(0.0f, 0.0f, 0.0f), Hit.Location, FVector(3.0f, 3.0f, 3.0f)), true);
+		FVector Up(0.0f, 0.0f, 1.0f);
+		FVector Axis = FVector::CrossProduct(Up, Hit.ImpactNormal);
+		Axis.Normalize();
+		float Angle = acosf(FVector::DotProduct(Up, Hit.ImpactNormal));
+		FQuat Quat(Axis, Angle);
+		FRotator Rotator = Quat.Rotator();
+
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, FTransform(Rotator, Hit.Location, FVector(0.5f, 0.5f, 0.5f)), true);
 	}
 	// Only add impulse and destroy projectile if we hit a physics
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
 	{
-		
 		//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 		Destroy();
 	}

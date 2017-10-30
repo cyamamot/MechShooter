@@ -21,7 +21,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
 	class UParticleSystem* HitEffect;
 
-	/** Sphere collision component */
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 	class UBoxComponent* CollisionComp;
 

@@ -4,27 +4,31 @@
 
 #include "CoreMinimal.h"
 #include "Gun.h"
-#include "Rifle.generated.h"
+#include "Shotgun.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class MECHSHOOTER_API ARifle : public AGun
+class MECHSHOOTER_API AShotgun : public AGun
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
-	ARifle();
+public:
+	AShotgun();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
+	int32 NumberOfShots;
+
+	float ShotSpread;
+
+public:
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void Fire() override;
-
+	virtual void Fire() override;	
+	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = GunBehavior)
 	void CreateCrosshair() override;
 };

@@ -29,16 +29,15 @@ AMechShooterCharacter::AMechShooterCharacter()
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
+	Mesh = GetMesh();
+
 	FPCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FPCamera"));
 	FPCamera->SetupAttachment(RootComponent);
 
 	FPMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FPSkeletalMesh"));
 	FPMesh->SetupAttachment(FPCamera);
 
-	Mesh = GetMesh();
-
 	PrimaryActorTick.bCanEverTick = true;
-
 	JumpButtonDown = false;
 	LandingNow = false;
 	Sprinting = false;
@@ -92,37 +91,37 @@ void AMechShooterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 void AMechShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
 	if (GunBlueprint != NULL)
 	{
 		Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
 		Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
-		Gun->User = this;
 		Gun->SetOwner(this);
 		Gun->FP_Gun->SetOwnerNoSee(true);
 		IsCurrentlyArmed = true;
 	}
-
 	if (FPGunBlueprint != NULL)
 	{
 		FPGun = GetWorld()->SpawnActor<AGun>(FPGunBlueprint);
 		FPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
-		FPGun->User = this;
 		FPGun->SetOwner(this);
 	}
-
 	if (LeftShoulderBlueprint != NULL)
 	{
 		LeftShoulder = GetWorld()->SpawnActor<AShoulder>(LeftShoulderBlueprint);
-		LeftShoulder->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("ShoulderWeaponSocket"));
-		LeftShoulder->User = this;
+		LeftShoulder->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("LeftShoulderSocket"));
 		LeftShoulder->SetOwner(this);
 		LeftShoulder->Mesh->SetOwnerNoSee(true);
+	}
+	if (RightShoulderBlueprint != NULL)
+	{
+		RightShoulder = GetWorld()->SpawnActor<AShoulder>(RightShoulderBlueprint);
+		RightShoulder->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("RightShoulderSocket"));
+		RightShoulder->SetOwner(this);
+		RightShoulder->Mesh->SetOwnerNoSee(true);
 	}
 	Mesh->SetOwnerNoSee(true);
 
 }
-
 
 void AMechShooterCharacter::OnResetVR()
 {
@@ -234,7 +233,7 @@ void AMechShooterCharacter::Tick(float DeltaTime)
 
 void AMechShooterCharacter::ReplaceBinding(FName ActionName)
 {
-	for (int32 i = 0; i < InputComponent->GetNumActionBindings() - 1; i++)
+	for (int32 i = InputComponent->GetNumActionBindings() - 1; i >= 0; i--)
 	{
 		if (InputComponent->GetActionBinding(i).ActionName.IsEqual(ActionName))
 		{
@@ -286,10 +285,11 @@ void AMechShooterCharacter::EquipWeapon()
 }
 
 //Called in AnimBP by the firing animation sequence so bullet only fires during certain part of animation
-void AMechShooterCharacter::FireGunProjectile()
+/*void AMechShooterCharacter::FireGunProjectile()
 {
 	Gun->Fire();
-}
+	FPGun->Fire();
+}*/
 
 //Called in AnimBP by equipping animation sequence so gun is placed in correct socket at correct frame of animation
 void AMechShooterCharacter::HolsterUnholsterWeapon()
@@ -309,28 +309,43 @@ void AMechShooterCharacter::HolsterUnholsterWeapon()
 void AMechShooterCharacter::LeftShoulderFire()
 {
 	AShoulderWeapon* Left = dynamic_cast<AShoulderWeapon*>(LeftShoulder);
-	if ((LeftShoulder != NULL) && (Left != NULL) && (Left->ReadyToFire == false))
+	if (Left != NULL)
 	{
-		LeftShoulder->Activate();
-		Mesh->SetOwnerNoSee(false);
-		FPMesh->SetOwnerNoSee(true);
-		FPGun->FP_Gun->SetOwnerNoSee(true);
-		LeftShoulder->Mesh->SetOwnerNoSee(false);
-		Gun->FP_Gun->SetOwnerNoSee(false);
-		ReplaceBinding(FName("LeftTrigger"));
-		InputComponent->BindAction("LeftTrigger", IE_Pressed, Left, &AShoulderWeapon::Fire);
+		LeftShoulder->Activate(InputComponent);
 	}
-	else if ((LeftShoulder != NULL) && (Left != NULL) && (Left->ReadyToFire == true))
+}
+
+void AMechShooterCharacter::ToggleVisibility()
+{
+	if (Gun != NULL)
 	{
-		LeftShoulder->Activate();
-		Mesh->SetOwnerNoSee(true);
-		FPMesh->SetOwnerNoSee(false);
-		FPGun->FP_Gun->SetOwnerNoSee(false);
-		LeftShoulder->Mesh->SetOwnerNoSee(true);
-		Gun->FP_Gun->SetOwnerNoSee(true);
-		ReplaceBinding(FName("LeftTrigger"));
-		InputComponent->BindAction("LeftTrigger", IE_Pressed, this, &AMechShooterCharacter::StartAiming);
-		InputComponent->BindAction("LeftTrigger", IE_Released, this, &AMechShooterCharacter::StopAiming);
+		if (Gun->FP_Gun->bOwnerNoSee == false) Gun->FP_Gun->SetOwnerNoSee(true);
+		else if (Gun->FP_Gun->bOwnerNoSee == true) Gun->FP_Gun->SetOwnerNoSee(false);
+	}
+	if (FPGun != NULL)
+	{
+		if (FPGun->FP_Gun->bOwnerNoSee == false) FPGun->FP_Gun->SetOwnerNoSee(true);
+		else if (FPGun->FP_Gun->bOwnerNoSee == true) FPGun->FP_Gun->SetOwnerNoSee(false);
+	}
+	if (LeftShoulder != NULL)
+	{
+		if (LeftShoulder->Mesh->bOwnerNoSee == false) LeftShoulder->Mesh->SetOwnerNoSee(true);
+		else if (LeftShoulder->Mesh->bOwnerNoSee == true) LeftShoulder->Mesh->SetOwnerNoSee(false);
+	}
+	if (RightShoulder != NULL)
+	{
+		if (RightShoulder->Mesh->bOwnerNoSee == false) RightShoulder->Mesh->SetOwnerNoSee(true);
+		else if (RightShoulder->Mesh->bOwnerNoSee == true) RightShoulder->Mesh->SetOwnerNoSee(false);
+	}
+	if (Mesh != NULL)
+	{
+		if (Mesh->bOwnerNoSee == false) Mesh->SetOwnerNoSee(true);
+		else if (Mesh->bOwnerNoSee == true) Mesh->SetOwnerNoSee(false);
+	}
+	if (FPMesh != NULL)
+	{
+		if (FPMesh->bOwnerNoSee == false) FPMesh->SetOwnerNoSee(true);
+		else if (FPMesh->bOwnerNoSee == true) FPMesh->SetOwnerNoSee(false);
 	}
 }
 

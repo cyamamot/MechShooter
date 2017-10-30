@@ -133,6 +133,9 @@ void AFP_FirstPersonCharacter::OnFire()
 	// Check for impact
 	const FHitResult Impact = WeaponTrace(StartTrace, EndTrace);
 
+
+
+
 	// Deal with impact
 	AActor* DamagedActor = Impact.GetActor();
 	UPrimitiveComponent* DamagedComponent = Impact.GetComponent();

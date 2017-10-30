@@ -21,6 +21,8 @@ public:
 
 	AProjectile* Projectile;
 
+	float WeaponRange;
+
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 	TSubclassOf<class AProjectile> ProjectileClass;
@@ -28,15 +30,11 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	class USkeletalMeshComponent* FP_Gun;
 
-	AMechShooterCharacter* User;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	/** Location on gun mesh where projectiles should spawn. */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USceneComponent* FP_MuzzleLocation;
+	FHitResult WeaponTrace(const FVector& StartTrace, const FVector& EndTrace);
 
 public:	
 	// Called every frame
@@ -44,4 +42,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = GunBehavior)
 	virtual void Fire() {}
+
+	UFUNCTION(BlueprintCallable, Category = GunBehavior)
+	virtual void CreateCrosshair() {}
 };

@@ -15,12 +15,10 @@ class MECHSHOOTER_API AShoulderWeapon : public AShoulder
 	GENERATED_BODY()
 	
 public:
+	AProjectile* Projectile;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
 	TSubclassOf<class AProjectile> ProjectileClass;
-
-	/** Location on gun mesh where projectiles should spawn. */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USceneComponent* Muzzle;
 
 	//moving the mesh ot the up position
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponState)
@@ -31,6 +29,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponState)
 	bool ReadyToFire;
 
+	float WeaponRange;
+
 public:
 	AShoulderWeapon();
 
@@ -38,9 +38,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	FHitResult WeaponTrace(const FVector& StartTrace, const FVector& EndTrace);
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void EmptyFunction();
 
 	void Fire() override;
 
@@ -49,5 +53,5 @@ private:
 
 	void MoveDown();
 
-	void Activate();
+	void Activate(UInputComponent* Input);
 };
