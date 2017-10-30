@@ -9,6 +9,7 @@ ABullet::ABullet()
 {
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CapsuleComp"));
+	//CollisionComp->RegisterComponent();
 	CollisionComp->InitBoxExtent(FVector(3.0f, 1.5f, 1.5f));
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
 	CollisionComp->OnComponentHit.AddDynamic(this, &ABullet::OnHit);		// set up a notification for when this component hits something blocking
@@ -22,6 +23,7 @@ ABullet::ABullet()
 
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
+	//ProjectileMovement->RegisterComponent();
 	ProjectileMovement->UpdatedComponent = CollisionComp;
 	ProjectileMovement->InitialSpeed = 5000.f;
 	ProjectileMovement->MaxSpeed = 5000.f;
@@ -29,8 +31,9 @@ ABullet::ABullet()
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
 
+
 	// Die after 3 seconds by default
-	InitialLifeSpan = 3.0f;
+	InitialLifeSpan = 5.0f;
 }
 
 void ABullet::BeginPlay()
@@ -40,6 +43,7 @@ void ABullet::BeginPlay()
 
 void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if ((OtherActor != NULL) && (OtherActor->ActorHasTag(FName(TEXT("Bullet"))))) return;
 	if (HitEffect != NULL)
 	{
 		FVector Up(0.0f, 0.0f, 1.0f);
@@ -48,8 +52,9 @@ void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitive
 		float Angle = acosf(FVector::DotProduct(Up, Hit.ImpactNormal));
 		FQuat Quat(Axis, Angle);
 		FRotator Rotator = Quat.Rotator();
-
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, FTransform(Rotator, Hit.Location, FVector(0.5f, 0.5f, 0.5f)), true);
+		UWorld* World = GetWorld();
+		if (World == NULL) return;
+		UGameplayStatics::SpawnEmitterAtLocation(World, HitEffect, FTransform(Rotator, Hit.Location, FVector(0.5f, 0.5f, 0.5f)), true);
 	}
 	// Only add impulse and destroy projectile if we hit a physics
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
@@ -59,4 +64,5 @@ void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitive
 	}
 	Destroy();
 }
+
 

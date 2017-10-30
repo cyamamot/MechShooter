@@ -14,6 +14,7 @@ AShoulderWeapon::AShoulderWeapon()
 	//PrimaryActorTick.bCanEverTick = true;
 
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ShoulderMesh"));
+	//Mesh->RegisterComponent();
 	Mesh->bCastDynamicShadow = false;
 	Mesh->CastShadow = true;
 	RootComponent = Mesh;

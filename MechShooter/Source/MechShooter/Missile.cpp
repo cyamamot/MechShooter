@@ -10,6 +10,7 @@ AMissile::AMissile()
 {
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
+	//CollisionComp->RegisterComponent();
 	CollisionComp->InitBoxExtent(FVector(8.0f, 4.0f, 4.0f));
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
 	CollisionComp->OnComponentHit.AddDynamic(this, &AMissile::OnHit);		// set up a notification for when this component hits something blocking
@@ -17,19 +18,18 @@ AMissile::AMissile()
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
 	CollisionComp->SetNotifyRigidBodyCollision(true);
-
 	// Set as root component
 	RootComponent = CollisionComp;
 
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
+	//ProjectileMovement->RegisterComponent();
 	ProjectileMovement->UpdatedComponent = CollisionComp;
 	ProjectileMovement->InitialSpeed = 1500.f;
 	ProjectileMovement->MaxSpeed = 1500.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
-
 	// Die after 3 seconds by default
 	InitialLifeSpan = 5.0f;
 }

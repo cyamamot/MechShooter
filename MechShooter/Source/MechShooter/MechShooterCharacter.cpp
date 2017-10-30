@@ -15,8 +15,8 @@ AMechShooterCharacter::AMechShooterCharacter()
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// set our turn rates for input
-	BaseTurnRate = 60.f;
-	BaseLookUpRate = 60.f;
+	BaseTurnRate = 100.f;
+	BaseLookUpRate = 100.f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -32,9 +32,11 @@ AMechShooterCharacter::AMechShooterCharacter()
 	Mesh = GetMesh();
 
 	FPCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FPCamera"));
+	//FPCamera->RegisterComponent();
 	FPCamera->SetupAttachment(RootComponent);
 
 	FPMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FPSkeletalMesh"));
+	//FPMesh->RegisterComponent();
 	FPMesh->SetupAttachment(FPCamera);
 
 	PrimaryActorTick.bCanEverTick = true;
@@ -84,7 +86,7 @@ void AMechShooterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("RightTrigger", IE_Pressed, this, &AMechShooterCharacter::StartFiring);
 	PlayerInputComponent->BindAction("RightTrigger", IE_Released, this, &AMechShooterCharacter::StopFiring);
 
-	PlayerInputComponent->BindAction("LeftButton", IE_Pressed, this, &AMechShooterCharacter::EquipWeapon);
+	PlayerInputComponent->BindAction("TopButton", IE_Pressed, this, &AMechShooterCharacter::EquipWeapon);
 
 	PlayerInputComponent->BindAction("LeftBumper", IE_Pressed, this, &AMechShooterCharacter::LeftShoulderFire);
 }
@@ -351,3 +353,12 @@ void AMechShooterCharacter::ToggleVisibility()
 	}
 }
 
+
+
+
+
+////////ADD Spark and Explosion Lights
+////////Double Jump
+////////Switch Weapons
+////////New Shoulder Weapons/ Shoulder
+////////Aim Weapons

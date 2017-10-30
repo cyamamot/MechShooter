@@ -13,6 +13,7 @@ ARifle::ARifle()
 
 	// Create a gun mesh component
 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
+	//FP_Gun->RegisterComponent();
 	FP_Gun->bCastDynamicShadow = false;
 	FP_Gun->CastShadow = true;
 	RootComponent = FP_Gun;
