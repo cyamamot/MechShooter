@@ -15,8 +15,8 @@ AMechShooterCharacter::AMechShooterCharacter()
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// set our turn rates for input
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
+	BaseTurnRate = 60.f;
+	BaseLookUpRate = 60.f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -45,6 +45,7 @@ AMechShooterCharacter::AMechShooterCharacter()
 	Firing = false;
 	if (Gun == NULL) IsCurrentlyArmed = false;
 	else IsCurrentlyArmed = true;
+	CurrentGunType = 0;
 }
 
 
@@ -98,12 +99,14 @@ void AMechShooterCharacter::BeginPlay()
 		Gun->SetOwner(this);
 		Gun->FP_Gun->SetOwnerNoSee(true);
 		IsCurrentlyArmed = true;
-	}
-	if (FPGunBlueprint != NULL)
-	{
-		FPGun = GetWorld()->SpawnActor<AGun>(FPGunBlueprint);
+	//}
+	//if (FPGunBlueprint != NULL)
+	//{
+		//FPGun = GetWorld()->SpawnActor<AGun>(FPGunBlueprint);
+		FPGun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
 		FPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
 		FPGun->SetOwner(this);
+		CurrentGunType = FPGun->GunType;
 	}
 	if (LeftShoulderBlueprint != NULL)
 	{
@@ -120,7 +123,6 @@ void AMechShooterCharacter::BeginPlay()
 		RightShoulder->Mesh->SetOwnerNoSee(true);
 	}
 	Mesh->SetOwnerNoSee(true);
-
 }
 
 void AMechShooterCharacter::OnResetVR()

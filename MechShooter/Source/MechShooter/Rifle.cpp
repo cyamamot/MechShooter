@@ -18,6 +18,7 @@ ARifle::ARifle()
 	RootComponent = FP_Gun;
 
 	WeaponRange = 5000.0f;
+	GunType = 0;
 }
 
 // Called when the game starts or when spawned

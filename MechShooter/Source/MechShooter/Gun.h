@@ -14,7 +14,7 @@ UCLASS()
 class MECHSHOOTER_API AGun : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:	
 	// Sets default values for this actor's properties
 	AGun();
@@ -22,6 +22,9 @@ public:
 	AProjectile* Projectile;
 
 	float WeaponRange;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Setup)
+	int32 GunType;
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)

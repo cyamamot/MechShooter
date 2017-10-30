@@ -18,6 +18,7 @@ AShotgun::AShotgun()
 	WeaponRange = 750.0f;
 	NumberOfShots = 10;
 	ShotSpread = 30.0f;
+	GunType = 1;
 }
 
 // Called when the game starts or when spawned
