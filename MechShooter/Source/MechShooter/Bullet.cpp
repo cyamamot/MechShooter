@@ -4,6 +4,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/Pawn.h"
+
 
 ABullet::ABullet()
 {
@@ -31,9 +33,8 @@ ABullet::ABullet()
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
 
-
-	// Die after 3 seconds by default
-	InitialLifeSpan = 5.0f;
+	InitialLifeSpan = 1.0f;
+	Damage = 100.0f;
 }
 
 void ABullet::BeginPlay()
@@ -57,10 +58,12 @@ void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitive
 		UGameplayStatics::SpawnEmitterAtLocation(World, HitEffect, FTransform(Rotator, Hit.Location, FVector(0.5f, 0.5f, 0.5f)), true);
 	}
 	// Only add impulse and destroy projectile if we hit a physics
-	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
+	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
 	{
 		//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-		Destroy();
+		AController* Instigator = ((APawn*)GetOwner())->GetController();
+		if (Instigator) UGameplayStatics::ApplyPointDamage(OtherActor, Damage, Hit.ImpactNormal, Hit, Instigator, this, NULL);
+		else UGameplayStatics::ApplyPointDamage(OtherActor, Damage, Hit.ImpactNormal, Hit, NULL, this, NULL);
 	}
 	Destroy();
 }

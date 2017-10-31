@@ -32,6 +32,7 @@ AMissile::AMissile()
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
 	// Die after 3 seconds by default
 	InitialLifeSpan = 5.0f;
+	Damage = 500.0f;
 }
 
 void AMissile::BeginPlay()
@@ -44,11 +45,14 @@ void AMissile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiv
 {
 	if (HitEffect != NULL)
 	{
-		//FX = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("FX"));
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, FTransform(FRotator(0.0f, 0.0f, 0.0f), Hit.Location, FVector(6.0f, 6.0f, 6.0f)), true);
+		TArray<AActor*> Empty;
+		AController* Instigator = ((APawn*)GetOwner())->GetController();
+		if (Instigator) UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), Damage, 1.0f, Hit.Location, 50.0f, 200.0f, 1.0f, NULL, Empty, this, Instigator);
+		else UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), Damage, 1.0f, Hit.Location, 50.0f, 200.0f, 1.0f, NULL, Empty, this, NULL);
 	}
 	// Only add impulse and destroy projectile if we hit a physics
-	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
+	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
 	{
 		Destroy();
 	}

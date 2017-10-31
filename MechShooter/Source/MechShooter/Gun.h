@@ -19,6 +19,9 @@ public:
 	// Sets default values for this actor's properties
 	AGun();
 
+	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	class UBoxComponent* CollisionComp;
+
 	AProjectile* Projectile;
 
 	float WeaponRange;

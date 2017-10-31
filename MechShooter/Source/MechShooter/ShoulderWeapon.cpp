@@ -14,12 +14,9 @@ AShoulderWeapon::AShoulderWeapon()
 	//PrimaryActorTick.bCanEverTick = true;
 
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ShoulderMesh"));
-	//Mesh->RegisterComponent();
-	Mesh->bCastDynamicShadow = false;
-	Mesh->CastShadow = true;
 	RootComponent = Mesh;
 
-	WeaponRange = 2000.0f;
+	WeaponRange = 5000.0f;
 
 	GettingReady = false;
 	ReadyToFire = false;
@@ -29,6 +26,12 @@ AShoulderWeapon::AShoulderWeapon()
 void AShoulderWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+	if (Mesh != NULL)
+	{
+		Mesh->bCastDynamicShadow = true;
+		Mesh->CastShadow = true;
+		Mesh->bCastHiddenShadow = true;
+	}
 }
 
 // Called every frame
@@ -80,12 +83,14 @@ void AShoulderWeapon::Fire()
 			{
 				FTransform Transform(LookAtRotation, SocketLocation, FVector(1.0f, 1.0f, 1.0f));
 				Projectile = World->SpawnActor<AProjectile>(ProjectileClass, Transform, ActorSpawnParams);
+				Projectile->SetOwner(GetOwner());
 			}
 			else
 			{
 				FRotator ControlRotation = ((APawn*)GetOwner())->GetControlRotation();
 				FTransform Transform(ControlRotation, SocketLocation, FVector(1.0f, 1.0f, 1.0f));
 				Projectile = World->SpawnActor<AProjectile>(ProjectileClass, Transform, ActorSpawnParams);
+				Projectile->SetOwner(GetOwner());
 			}
 		}
 	}

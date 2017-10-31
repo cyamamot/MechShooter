@@ -3,7 +3,8 @@
 #include "Rifle.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
-
+#include "Components/BoxComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 ARifle::ARifle()
@@ -13,10 +14,10 @@ ARifle::ARifle()
 
 	// Create a gun mesh component
 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	//FP_Gun->RegisterComponent();
-	FP_Gun->bCastDynamicShadow = false;
-	FP_Gun->CastShadow = true;
 	RootComponent = FP_Gun;
+
+	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CapsuleComp"));
+	CollisionComp->SetupAttachment(RootComponent);
 
 	WeaponRange = 5000.0f;
 	GunType = 0;
@@ -26,7 +27,6 @@ ARifle::ARifle()
 void ARifle::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -62,7 +62,6 @@ void ARifle::Fire()
 	// Check for impact
 	const FHitResult CameraImpact = WeaponTrace(StartTrace, EndTrace);
 
-
 	// try and fire a projectile
 	if (ProjectileClass != NULL)
 	{
@@ -71,7 +70,7 @@ void ARifle::Fire()
 		{
 			//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
-			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 			FVector SocketLocation = FP_Gun->GetSocketLocation("Muzzle");
 			FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(SocketLocation, CameraImpact.ImpactPoint);
@@ -80,12 +79,16 @@ void ARifle::Fire()
 			{
 				FTransform Transform(LookAtRotation, SocketLocation, FVector(1.0f, 1.0f, 1.0f));
 				Projectile = World->SpawnActor<AProjectile>(ProjectileClass, Transform, ActorSpawnParams);
+				Projectile->SetOwner(GetOwner());
+				Projectile->Damage = 10.0f;
 			}
 			else
 			{
 				FRotator ControlRotation = ((APawn*)GetOwner())->GetControlRotation();
 				FTransform Transform(ControlRotation, SocketLocation, FVector(1.0f, 1.0f, 1.0f));
 				Projectile = World->SpawnActor<AProjectile>(ProjectileClass, Transform, ActorSpawnParams);
+				Projectile->SetOwner(GetOwner());
+				Projectile->Damage = 10.0f;
 			}
 		}
 	}

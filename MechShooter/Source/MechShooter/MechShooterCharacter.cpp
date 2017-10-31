@@ -32,12 +32,11 @@ AMechShooterCharacter::AMechShooterCharacter()
 	Mesh = GetMesh();
 
 	FPCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FPCamera"));
-	//FPCamera->RegisterComponent();
 	FPCamera->SetupAttachment(RootComponent);
 
 	FPMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FPSkeletalMesh"));
-	//FPMesh->RegisterComponent();
 	FPMesh->SetupAttachment(FPCamera);
+	FPMesh->CastShadow = false;
 
 	PrimaryActorTick.bCanEverTick = true;
 	JumpButtonDown = false;
@@ -45,11 +44,11 @@ AMechShooterCharacter::AMechShooterCharacter()
 	Sprinting = false;
 	Aiming = false;
 	Firing = false;
+	SwappingWeapon = false;
 	if (Gun == NULL) IsCurrentlyArmed = false;
 	else IsCurrentlyArmed = true;
-	CurrentGunType = 0;
+	CurrentGunType = none;
 }
-
 
 void AMechShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -89,26 +88,45 @@ void AMechShooterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("TopButton", IE_Pressed, this, &AMechShooterCharacter::EquipWeapon);
 
 	PlayerInputComponent->BindAction("LeftBumper", IE_Pressed, this, &AMechShooterCharacter::LeftShoulderFire);
+
+	PlayerInputComponent->BindAction("DPadLeft", IE_Pressed, this, &AMechShooterCharacter::SwapGunToLeft);
+	PlayerInputComponent->BindAction("DPadRight", IE_Pressed, this, &AMechShooterCharacter::SwapGunToRight);
 }
 
 void AMechShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	if (GunBlueprint != NULL)
+
+	if (LeftGunBlueprint != NULL)
 	{
-		Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
-		Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
-		Gun->SetOwner(this);
-		Gun->FP_Gun->SetOwnerNoSee(true);
+		LeftGun = GetWorld()->SpawnActor<AGun>(LeftGunBlueprint);
+		Gun = LeftGun;
+		LeftGun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
+		LeftGun->SetOwner(this);
+		LeftGun->FP_Gun->SetOwnerNoSee(true);
 		IsCurrentlyArmed = true;
-	//}
-	//if (FPGunBlueprint != NULL)
-	//{
-		//FPGun = GetWorld()->SpawnActor<AGun>(FPGunBlueprint);
-		FPGun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
-		FPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
-		FPGun->SetOwner(this);
-		CurrentGunType = FPGun->GunType;
+	
+		LeftFPGun = GetWorld()->SpawnActor<AGun>(LeftGunBlueprint);
+		FPGun = LeftFPGun;
+		LeftFPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
+		LeftFPGun->SetOwner(this);
+		LeftFPGun->CreateCrosshair();
+		LeftFPGun->FP_Gun->SetCastShadow(false);
+
+		CurrentGunType = LeftFPGun->GunType;
+		CurrentGunSlot = left;
+	}
+    if (RightGunBlueprint != NULL)
+	{
+		RightGun = GetWorld()->SpawnActor<AGun>(RightGunBlueprint);
+		RightGun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponHolsterSocket"));
+		RightGun->SetOwner(this);
+		RightGun->FP_Gun->SetOwnerNoSee(true);
+
+		RightFPGun = GetWorld()->SpawnActor<AGun>(RightGunBlueprint);
+		RightFPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponHolsterSocket"));
+		RightFPGun->SetOwner(this);
+		RightFPGun->FP_Gun->SetCastShadow(false);
 	}
 	if (LeftShoulderBlueprint != NULL)
 	{
@@ -244,14 +262,64 @@ void AMechShooterCharacter::ReplaceBinding(FName ActionName)
 			InputComponent->RemoveActionBinding(i);
 		}
 	}
+}
 
+void AMechShooterCharacter::SwapGunToLeft()
+{
+	if (CurrentGunSlot != GunSlots::left)
+	{
+		SwappingWeapon = true;
+		CurrentGunSlot = GunSlots::left;
+	}
+}
+
+void AMechShooterCharacter::SwapGunToRight()
+{
+	if (CurrentGunSlot != GunSlots::right)
+	{
+		SwappingWeapon = true;
+		CurrentGunSlot = GunSlots::right;
+	}
+}
+
+void AMechShooterCharacter::SwapGun()
+{
+	if ((CurrentGunSlot == GunSlots::left) || (CurrentGunSlot == GunSlots::none))
+	{
+		if (LeftGun != NULL)
+		{
+			Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponHolsterSocket"));
+			FPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponHolsterSocket"));
+			LeftGun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
+			LeftFPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
+			Gun = LeftGun;
+			FPGun = LeftFPGun;
+			CurrentGunType = Gun->GunType;
+			IsCurrentlyArmed = true;
+		}
+	}
+	else if ((CurrentGunSlot == GunSlots::right) || (CurrentGunSlot == GunSlots::none))
+	{
+		if (LeftGun != NULL)
+		{
+			Gun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponHolsterSocket"));
+			FPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponHolsterSocket"));
+			RightGun->AttachToComponent(Mesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
+			RightFPGun->AttachToComponent(FPMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("WeaponSocket"));
+			Gun = RightGun;
+			FPGun = RightFPGun;
+			CurrentGunType = Gun->GunType;
+			IsCurrentlyArmed = true;
+		}
+	}
+	SwappingWeapon = false;
 }
 
 void AMechShooterCharacter::StartAiming()
 {
 	if (Gun != NULL)
 	{
-		Aiming = true;
+		//Aiming = true;//////////////////////////////////////////////////////////////turned off since this is always set true in the animBP
 	}
 }
 
@@ -259,7 +327,7 @@ void AMechShooterCharacter::StopAiming()
 {
 	if (Gun != NULL)
 	{
-		Aiming = false;
+		//Aiming = false;
 	}
 }
 
@@ -288,13 +356,6 @@ void AMechShooterCharacter::EquipWeapon()
 	}
 }
 
-//Called in AnimBP by the firing animation sequence so bullet only fires during certain part of animation
-/*void AMechShooterCharacter::FireGunProjectile()
-{
-	Gun->Fire();
-	FPGun->Fire();
-}*/
-
 //Called in AnimBP by equipping animation sequence so gun is placed in correct socket at correct frame of animation
 void AMechShooterCharacter::HolsterUnholsterWeapon()
 {
@@ -321,15 +382,25 @@ void AMechShooterCharacter::LeftShoulderFire()
 
 void AMechShooterCharacter::ToggleVisibility()
 {
-	if (Gun != NULL)
+	if (LeftGun != NULL)
 	{
-		if (Gun->FP_Gun->bOwnerNoSee == false) Gun->FP_Gun->SetOwnerNoSee(true);
-		else if (Gun->FP_Gun->bOwnerNoSee == true) Gun->FP_Gun->SetOwnerNoSee(false);
+		if (LeftGun->FP_Gun->bOwnerNoSee == false) LeftGun->FP_Gun->SetOwnerNoSee(true);
+		else if (LeftGun->FP_Gun->bOwnerNoSee == true) LeftGun->FP_Gun->SetOwnerNoSee(false);
 	}
-	if (FPGun != NULL)
+	if (LeftFPGun != NULL)
 	{
-		if (FPGun->FP_Gun->bOwnerNoSee == false) FPGun->FP_Gun->SetOwnerNoSee(true);
-		else if (FPGun->FP_Gun->bOwnerNoSee == true) FPGun->FP_Gun->SetOwnerNoSee(false);
+		if (LeftFPGun->FP_Gun->bOwnerNoSee == false) LeftFPGun->FP_Gun->SetOwnerNoSee(true);
+		else if (LeftFPGun->FP_Gun->bOwnerNoSee == true) LeftFPGun->FP_Gun->SetOwnerNoSee(false);
+	}
+	if (RightGun != NULL)
+	{
+		if (RightGun->FP_Gun->bOwnerNoSee == false) RightGun->FP_Gun->SetOwnerNoSee(true);
+		else if (RightGun->FP_Gun->bOwnerNoSee == true) RightGun->FP_Gun->SetOwnerNoSee(false);
+	}
+	if (RightFPGun != NULL)
+	{
+		if (RightFPGun->FP_Gun->bOwnerNoSee == false) RightFPGun->FP_Gun->SetOwnerNoSee(true);
+		else if (RightFPGun->FP_Gun->bOwnerNoSee == true) RightFPGun->FP_Gun->SetOwnerNoSee(false);
 	}
 	if (LeftShoulder != NULL)
 	{
@@ -353,12 +424,3 @@ void AMechShooterCharacter::ToggleVisibility()
 	}
 }
 
-
-
-
-
-////////ADD Spark and Explosion Lights
-////////Double Jump
-////////Switch Weapons
-////////New Shoulder Weapons/ Shoulder
-////////Aim Weapons

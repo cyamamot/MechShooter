@@ -2,6 +2,7 @@
 
 #include "Shotgun.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -12,14 +13,14 @@ AShotgun::AShotgun()
 
 	// Create a gun mesh component
 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	//FP_Gun->RegisterComponent();
-	FP_Gun->bCastDynamicShadow = false;
-	FP_Gun->CastShadow = true;
 	RootComponent = FP_Gun;
 
-	WeaponRange = 750.0f;
+	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CapsuleComp"));
+	CollisionComp->SetupAttachment(RootComponent);
+
+	WeaponRange = 2000.0f;
 	NumberOfShots = 10;
-	ShotSpread = 50.0f;
+	ShotSpread = 200.0f;
 	GunType = 1;
 }
 
@@ -27,7 +28,6 @@ AShotgun::AShotgun()
 void AShotgun::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // Called every frame
@@ -75,13 +75,22 @@ void AShotgun::Fire()
 			{
 				//Set Spawn Collision Handling Override
 				FActorSpawnParameters ActorSpawnParams;
-				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
+				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+				
 				FVector SocketLocation = FP_Gun->GetSocketLocation("Muzzle");
-				FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(SocketLocation, CameraImpact.ImpactPoint);
-
+				FRotator LookAtRotation;
+				if (CameraImpact.Actor != NULL)
+				{
+					LookAtRotation = UKismetMathLibrary::FindLookAtRotation(SocketLocation, CameraImpact.ImpactPoint);
+				}
+				else
+				{
+					LookAtRotation = UKismetMathLibrary::FindLookAtRotation(SocketLocation, EndTraceSpread);
+				}
 				FTransform Transform(LookAtRotation, SocketLocation, FVector(1.0f, 1.0f, 1.0f));
 				Projectile = World->SpawnActor<AProjectile>(ProjectileClass, Transform, ActorSpawnParams);
+				Projectile->SetOwner(GetOwner());
+				Projectile->Damage = 50.0f;
 			}
 		}
 	}

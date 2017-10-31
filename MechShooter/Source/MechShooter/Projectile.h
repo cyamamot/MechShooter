@@ -17,6 +17,9 @@ public:
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Setup)
+	float Damage;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
 	class UParticleSystem* HitEffect;
