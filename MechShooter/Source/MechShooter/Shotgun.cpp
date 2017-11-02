@@ -60,6 +60,7 @@ void AShotgun::Fire()
 	const FVector EndTrace = (StartTrace + ShootDir * WeaponRange);
 	for (int32 i = 0; i < NumberOfShots; i++)
 	{
+		WeaponDamage = FMath::RandRange(30.0f, 50.0f);
 		float RandX = FMath::RandRange(-ShotSpread, ShotSpread);
 		float RandY = FMath::RandRange(-ShotSpread, ShotSpread);
 		float RandZ = FMath::RandRange(-ShotSpread, ShotSpread);
@@ -90,7 +91,8 @@ void AShotgun::Fire()
 				FTransform Transform(LookAtRotation, SocketLocation, FVector(1.0f, 1.0f, 1.0f));
 				Projectile = World->SpawnActor<AProjectile>(ProjectileClass, Transform, ActorSpawnParams);
 				Projectile->SetOwner(GetOwner());
-				Projectile->Damage = 50.0f;
+				Projectile->Damage = WeaponDamage;
+				Projectile->SetLifeSpan(1.5f);
 			}
 		}
 	}

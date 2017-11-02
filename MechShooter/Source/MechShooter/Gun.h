@@ -26,6 +26,8 @@ public:
 
 	float WeaponRange;
 
+	float WeaponDamage;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Setup)
 	int32 GunType;
 

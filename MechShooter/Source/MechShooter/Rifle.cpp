@@ -68,6 +68,7 @@ void ARifle::Fire()
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
+			WeaponDamage = FMath::RandRange(100.0f, 150.0f);
 			//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -80,7 +81,8 @@ void ARifle::Fire()
 				FTransform Transform(LookAtRotation, SocketLocation, FVector(1.0f, 1.0f, 1.0f));
 				Projectile = World->SpawnActor<AProjectile>(ProjectileClass, Transform, ActorSpawnParams);
 				Projectile->SetOwner(GetOwner());
-				Projectile->Damage = 10.0f;
+				Projectile->Damage = WeaponDamage;
+				Projectile->SetLifeSpan(3.0f);
 			}
 			else
 			{
@@ -88,7 +90,8 @@ void ARifle::Fire()
 				FTransform Transform(ControlRotation, SocketLocation, FVector(1.0f, 1.0f, 1.0f));
 				Projectile = World->SpawnActor<AProjectile>(ProjectileClass, Transform, ActorSpawnParams);
 				Projectile->SetOwner(GetOwner());
-				Projectile->Damage = 10.0f;
+				Projectile->Damage = WeaponDamage;
+				Projectile->SetLifeSpan(3.0f);
 			}
 		}
 	}

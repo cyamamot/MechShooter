@@ -25,8 +25,8 @@ AMissile::AMissile()
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	//ProjectileMovement->RegisterComponent();
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 1500.f;
-	ProjectileMovement->MaxSpeed = 1500.f;
+	ProjectileMovement->InitialSpeed = 3000.f;
+	ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
@@ -46,16 +46,14 @@ void AMissile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiv
 	if (HitEffect != NULL)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, FTransform(FRotator(0.0f, 0.0f, 0.0f), Hit.Location, FVector(6.0f, 6.0f, 6.0f)), true);
-		TArray<AActor*> Empty;
-		AController* Instigator = ((APawn*)GetOwner())->GetController();
-		if (Instigator) UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), Damage, 1.0f, Hit.Location, 50.0f, 200.0f, 1.0f, NULL, Empty, this, Instigator);
-		else UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), Damage, 1.0f, Hit.Location, 50.0f, 200.0f, 1.0f, NULL, Empty, this, NULL);
+
 	}
-	// Only add impulse and destroy projectile if we hit a physics
-	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
-	{
-		Destroy();
-	}
+	TArray<AActor*> Empty;
+	AController* Instigator = ((APawn*)GetOwner())->GetController();
+	//if (Instigator) UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), Damage, 1.0f, Hit.Location, 50.0f, 200.0f, 1.0f, NULL, Empty, GetOwner(), Instigator);
+	//else UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), Damage, 1.0f, Hit.Location, 50.0f, 200.0f, 1.0f, NULL, Empty, GetOwner(), NULL);
+	if (Instigator) UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), Damage, 1.0f, Hit.Location, 50.0f, 200.0f, 1.0f, NULL, Empty, this, Instigator);
+	else UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), Damage, 1.0f, Hit.Location, 50.0f, 200.0f, 1.0f, NULL, Empty, this, NULL);
 	Destroy();
 }
 

@@ -12,7 +12,7 @@ ABullet::ABullet()
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CapsuleComp"));
 	//CollisionComp->RegisterComponent();
-	CollisionComp->InitBoxExtent(FVector(3.0f, 1.5f, 1.5f));
+	CollisionComp->InitBoxExtent(FVector(5.0f, 3.0f, 3.0f));
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
 	CollisionComp->OnComponentHit.AddDynamic(this, &ABullet::OnHit);		// set up a notification for when this component hits something blocking
 																				// Players can't walk on it
@@ -62,6 +62,8 @@ void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitive
 	{
 		//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 		AController* Instigator = ((APawn*)GetOwner())->GetController();
+		//(Instigator) UGameplayStatics::ApplyPointDamage(OtherActor, Damage, Hit.ImpactNormal, Hit, Instigator, GetOwner(), NULL);
+		//else UGameplayStatics::ApplyPointDamage(OtherActor, Damage, Hit.ImpactNormal, Hit, NULL, GetOwner(), NULL);
 		if (Instigator) UGameplayStatics::ApplyPointDamage(OtherActor, Damage, Hit.ImpactNormal, Hit, Instigator, this, NULL);
 		else UGameplayStatics::ApplyPointDamage(OtherActor, Damage, Hit.ImpactNormal, Hit, NULL, this, NULL);
 	}
