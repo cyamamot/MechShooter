@@ -35,6 +35,13 @@ void AShoulderWeapon::BeginPlay()
 void AShoulderWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	AMechShooterCharacter* Owner = (AMechShooterCharacter*)GetOwner();
+	if ((Owner != NULL) && ((ReadyToFire == true) || (GettingReady == true)) && (Owner->GetMovementComponent()->IsFalling() == true))
+	{
+		Owner->ToggleVisibility();
+		ReadyToFire = false;
+		GettingReady = false;
+	}
 }
 
 void AShoulderWeapon::Fire()

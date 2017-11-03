@@ -30,10 +30,10 @@ void ARifle::BeginPlay()
 }
 
 // Called every frame
-void ARifle::Tick(float DeltaTime)
+/*void ARifle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
+}*/
 
 void ARifle::Fire()
 {

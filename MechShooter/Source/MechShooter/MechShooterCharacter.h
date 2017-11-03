@@ -3,11 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UMG.h"
 #include "GameFramework/Character.h"
 #include "Gun.h"
 #include "Shoulder.h"
 #include "ShoulderWeapon.h"
+#include "Components/WidgetInteractionComponent.h"
 #include "MechShooterCharacter.generated.h"
+
 
 UCLASS(config=Game)
 class AMechShooterCharacter : public ACharacter
@@ -62,12 +65,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
 	TSubclassOf<class AShoulder> RightShoulderBlueprint;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Setup)
+	UWidgetInteractionComponent* WIC;
+
 public:
 	AMechShooterCharacter();
 
 	UFUNCTION(BlueprintCallable, Category = GunBehavior)
 	void HolsterUnholsterWeapon();
 
+	UFUNCTION(BlueprintCallable, Category = Setup)
 	void ToggleVisibility();
 
 	void Jump();
@@ -129,11 +136,11 @@ protected:
 	GunSlots CurrentGunSlot;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
 	float BaseTurnRate;
 
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
 	float BaseLookUpRate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ButtonStates)

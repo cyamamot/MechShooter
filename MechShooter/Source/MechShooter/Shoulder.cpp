@@ -19,9 +19,9 @@ void AShoulder::BeginPlay()
 }
 
 // Called every frame
-void AShoulder::Tick(float DeltaTime)
+/*void AShoulder::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
+}*/
 

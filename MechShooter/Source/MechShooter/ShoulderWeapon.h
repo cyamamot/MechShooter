@@ -20,7 +20,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Setup)
 	TSubclassOf<class AProjectile> ProjectileClass;
 
-	//moving the mesh ot the up position
+	//moving the mesh to the up position
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponState)
 	bool GettingReady;
 

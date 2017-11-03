@@ -40,7 +40,10 @@ AMechShooterCharacter::AMechShooterCharacter()
 	FPMesh->SetupAttachment(FPCamera);
 	FPMesh->CastShadow = false;
 
-	PrimaryActorTick.bCanEverTick = true;
+	WIC = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteraction"));
+	WIC->SetupAttachment(FPCamera);
+	WIC->InteractionDistance = 1000.0f;
+
 	JumpButtonDown = false;
 	LandingNow = false;
 	Sprinting = false;
@@ -339,11 +342,19 @@ void AMechShooterCharacter::StartFiring()
 	{
 		Firing = true;
 	}
+	if (WIC != NULL)
+	{
+		WIC->PressPointerKey(EKeys::LeftMouseButton);
+	}
 }
 
 void AMechShooterCharacter::StopFiring()
 {
 	Firing = false;
+	if (WIC != NULL)
+	{
+		WIC->ReleasePointerKey(EKeys::LeftMouseButton);
+	}
 }
 
 void AMechShooterCharacter::EquipWeapon()

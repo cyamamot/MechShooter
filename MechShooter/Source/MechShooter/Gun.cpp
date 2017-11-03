@@ -19,11 +19,11 @@ void AGun::BeginPlay()
 }
 
 // Called every frame
-void AGun::Tick(float DeltaTime)
+/*void AGun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
+}*/
 
 FHitResult AGun::WeaponTrace(const FVector& StartTrace, const FVector& EndTrace)
 {

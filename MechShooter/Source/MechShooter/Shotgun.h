@@ -25,10 +25,13 @@ protected:
 	float ShotSpread;
 
 public:
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 
 	virtual void Fire() override;	
 	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = GunBehavior)
 	void CreateCrosshair() override;
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = GunBehavior)
+	void RemoveCrosshair() override;
 };

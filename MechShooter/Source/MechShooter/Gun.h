@@ -46,11 +46,14 @@ protected:
 
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = GunBehavior)
 	virtual void Fire() {}
 
 	UFUNCTION(BlueprintCallable, Category = GunBehavior)
 	virtual void CreateCrosshair() {}
+
+	UFUNCTION(BlueprintCallable, Category = GunBehavior)
+	virtual void RemoveCrosshair() {}
 };

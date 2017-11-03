@@ -31,10 +31,10 @@ void AShotgun::BeginPlay()
 }
 
 // Called every frame
-void AShotgun::Tick(float DeltaTime)
+/*void AShotgun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
+}*/
 
 void AShotgun::Fire()
 {
